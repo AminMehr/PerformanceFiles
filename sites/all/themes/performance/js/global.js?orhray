@@ -1,0 +1,895 @@
+jQuery(document).ready( function() {
+    jQuery(function ($) {   
+        $("#agency-head-carousel .pager li a").attr("role", "carousel-navigation");
+        $(".views-slideshow-controls-bottom .views-slideshow-pager-field-item").attr("tabindex", "0");
+        $(".views-slideshow-controls-bottom .views-slideshow-pager-field-item").attr("role", "carousel-navigation");
+        $(".views-slideshow-controls-bottom .views-slideshow-pager-field-item").keypress(function(e){
+            if(e.which === 13)
+                $(this).click();
+        });
+
+        if($('#edit-apg-list input[type=radio]:checked').length == 0){
+            $('#agency-clone-list-apg-form input[type="submit"]').attr('disabled' , true);
+        }else if($('#edit-apg-list input[type=radio]:checked').length > 0){
+            $('#agency-clone-list-apg-form input[type="submit"]').removeAttr('disabled');
+        }
+        $('#edit-apg-list input[type=radio]').change(function(){
+            if($(this).is(':checked')){
+                $('#agency-clone-list-apg-form input[type="submit"]').removeAttr('disabled');
+            }
+        });
+
+
+        var windowWidth = $(window).width();
+        /*Everything other than mobile*/
+        if (windowWidth > 767){
+            //Equal heights for mission and side container
+            if($('body').hasClass('node-type-agency') ||
+                $('body').hasClass('node-type-priority-goal')){
+                $('.narrow-container, .mission-container').equalHeights();
+                var matchHeights = $('.narrow-container').height() + 20;
+                $('.narrow-container, .mission-container').height(matchHeights);
+            }
+        }
+
+        // Tablet and Below - Functions to fire only if the page is less than 767px wide.
+        if(windowWidth <= 767){
+
+            //Agency Pages - Tabs
+            $('#tabs').attr('id', 'mobileTabs');
+            $('#mobileTabs .blue_tab').each(function(){
+                var itemID = $(this).find('> a').attr('href');
+                itemID = itemID.substring(1);
+                $('#' + itemID).insertAfter(this);
+                $('#' + itemID).hide();
+            });
+            $('#mobileTabs .blue_tab > a').click(function(e){
+                e.preventDefault();
+                var itemID = $(this).attr('href');
+                itemID = itemID.substring(1);
+                $('#' + itemID).slideToggle();
+                
+            });
+
+
+            // Clear-Goals - hide intro text for mobile - use read more button
+
+            $(".hide_desktop").click(function(){
+            if ($(".hide_desktop p").html() == "Read More") {
+                    $(".hide_desktop p").html("Read Less");
+            }
+            else {
+                    $(".hide_desktop p").html("Read More");
+            }   
+               $(".hide_mobile").slideToggle();
+            });
+
+
+            //Agency Pages - Content above tabs
+            $('.mission_mobile').insertAfter('#share_icons');
+            $('.teaser_themes_wrapper').insertAfter('.mission_mobile');
+            $('.teaser_themes_wrapper').hide();
+            $('.mission_mobile').click(function(){
+                $('.teaser_themes_wrapper').slideToggle();
+            });
+            $('.float-left .text').append($('.agency-head-wrapper'));
+
+
+            //FAQ Pages - Tabs
+            $('.quicktabs-tabpage').hide();
+            $('#quicktabs-site_faq .item-list > ul > li > a').click(function(){
+                var tabId = $(this).attr('id'),
+                    contentId;
+
+                tabId = tabId.split('-');
+                contentId = "#quicktabs-tabpage-site_faq-" + tabId[3];
+                contentSelector = '<li class="content quicktabs-tabpage-site_faq-' + tabId[3] + '"></li>';
+
+                if(!$(this).parent().next().hasClass('content')){
+                    $(contentId).wrap(contentSelector);
+                    var contentLi = $(contentId).parent();
+                    $(contentLi).insertAfter($(this).parent());
+
+                }
+
+                $(contentId).slideToggle();
+
+            });
+
+            $('.faq .node .content .field .field-items p a').addClass('faq_link');
+
+
+
+        }
+
+
+        // Homepage_Footer_blocks_dropdown
+
+        $('.themes_drop').hide();
+        $("#themes-info").click( function(e){
+            e.preventDefault();
+            $('.agency_drop').fadeOut();
+            $('.themes_drop').fadeToggle();  
+        });
+
+        $('.agency_drop').hide();
+        $("#agency-goals-info").click( function(e){
+            e.preventDefault();
+            $('.themes_drop').fadeOut();
+            $('.agency_drop').fadeToggle();  
+        });
+
+
+        // 508 fixes - adding labels for select in Goals page
+
+        $(".clear-goals #facet-search-filters .form-item select#edit-clear-goals-type").before('<label for="edit-clear-goals-type">Goal Type</label>');
+        $(".clear-goals #facet-search-filters .form-item select#edit-clear-goals-fiscal-year").before('<label for="edit-clear-goals-fiscal-year">Fiscal Year</label>');
+        $(".clear-goals #facet-search-filters .form-item select#edit-clear-goals-agency").before('<label for="edit-clear-goals-agency">Agency</label>');
+        $(".clear-goals #facet-search-filters .form-item select#edit-clear-goals-themes").before('<label for="edit-clear-goals-themes">Themes</label>');
+
+        //search facets
+        $('.facetapi-limit-link').each(function(index, value){
+                $(this).attr('role','button');
+        });
+        $('.facetapi-limit-link').parent().each(function(index, value){
+            $(this).children('ul.facetapi-facetapi-checkbox-links').attr('aria-expanded','false');
+        });
+        $('.facetapi-limit-link').click(function() {
+            var val1 = ($(this).parent().children('ul.facetapi-facetapi-checkbox-links').attr('aria-expanded') == 'true' ? 'false' : 'true');
+            $(this).parent().children('ul.facetapi-facetapi-checkbox-links').attr('aria-expanded', val1);
+        });
+
+        // fixes for pdf iframe in ios
+
+        if (/iPhone|iPod|iPad/.test(navigator.userAgent)) {
+            var src = $('.frame_container object').attr('data');
+            $('.frame_container').html('<a id="object_link" href="#">Click here to open PDF</a>');
+            $('#object_link').attr('href', src);
+        }
+
+        //To split Agencies dropdown nav into 3 coulmns
+    
+            $('.front .drop_col ul').easyListSplitter({ 
+                colNumber: 4 // number of columns
+            });
+        //Copied from perf3 global.js
+        //        Adds background image of expanded triangle on accordion
+        $('#indicators').find('.accordion_header').eq(0).addClass('accordion_expanded');
+        $('body.node-type-objective').find('#relatedgoals .accordion_header').removeClass('accordion_expanded');
+        //        Expand all Accordion
+        custExpandAll = function(){
+            $('.accordion_content').slideDown();
+            $('.accordion_header').addClass('accordion_expanded').removeClass('accordion_collapsed');
+        };
+        custCollapseAll = function(){
+            $('.accordion_content').slideUp();
+            $('.accordion_header').removeClass('accordion_expanded').addClass('accordion_collapsed');
+        };
+        function ExpandAllSiblings() {
+            $(this).siblings('.accordion_content').slideDown();
+            $(this).siblings('.accordion_header').addClass('accordion_expanded').removeClass('accordion_collapsed');
+        };
+        function collapseAllSiblings() {
+          $(this).siblings('.accordion_content').slideUp();
+          $(this).siblings('.accordion_header').removeClass('accordion_expanded').addClass('accordion_collapsed');
+        };
+
+        $('a.expand-all').click(function(){
+            var parent = $(this).parent('div');
+            parent.find('.accordion_content').slideDown();
+            parent.find('.accordion_header').addClass('accordion_expanded').removeClass('accordion_collapsed');
+        });
+        $('a.collapse-all').click(function(){
+            var parent = $(this).parent('div');
+            parent.find('.accordion_content').slideUp();
+            parent.find('.accordion_header').removeClass('accordion_expanded').addClass('accordion_collapsed');
+        });
+
+        //agency stakeholder show / hide
+        $('.toggle-link').live('click', function(e) {
+            $('.thingtoshoworhide').show();
+            e.preventDefault();
+        });
+
+        function ExpandAllButton(){
+          $('#expand-accordions').click(function() {$('.expand-accordions').slideDown();});
+        }
+        function CollapseAllButton(){
+          $('#collapse-accordions').click(function() {$('.collapse-accordions').slideUp();});
+        }
+
+        //Indicators tabbing
+        $("#expand").keypress(function(e){
+            if(e.which === 13)
+                $(this).click();
+        });
+
+        //clickable tabs on the performance indicator
+        $('#indicators .accordion_tabs').each(function() {
+            $(this).find('.data').each(function(i) {
+                $(this).addClass("item" + i).hide();
+                //$(this).next().addClass("item" + i).hide();
+                i++;
+            });
+        });
+        $('#indicators .accordion_tabs').prepend('<ul class="tabs">\
+            <li class="item0"><a href="#overview-content">Overview</a></li>\
+            <li class="item1" ><a href="#explanation-content">Data &amp; Explanation</a></li>\
+            <li class="item2" ><a href="#details-content">Indicator Details</a></li>\
+            </ul>');
+        $('.item0').addClass('active').show();
+        $('#indicators .accordion_tabs .tabs li').click(function(){
+            if(!$(this).hasClass('active') && $(this).parent().parent().parent().siblings().hasClass('accordion_expanded')){
+                $('#indicators .accordion_tabs div .data').hide();
+                $('#indicators .accordion_tabs div .data').next().hide();
+                custCollapseAll();
+                var className = $(this).attr('class');
+                switch(className){
+                    case 'item0':
+                        $('#indicators .accordion_tabs .item0').show();
+                        break;
+                    case 'item1':
+                        $('#indicators .accordion_tabs .item1').show();
+                        break;
+                    case 'item2':
+                        $('#indicators .accordion_tabs .item2').show();
+                        break;
+                }
+                $('#indicators .accordion_tabs .tabs li').removeClass('active');
+                $(this).addClass('active');
+            }
+        });
+
+        //tabbing
+        $('#indicators .accordion_tabs .tabs li').keypress(function(e){
+            if(e.which === 13)
+                $(this).click();
+        });
+        $('#indicators .overview-wrapper .accordion_header').keypress(function(e){
+            if(e.which === 13)
+                $(this).children('.expanding_triangle').click();
+        });
+
+        $('.feedback-required .form-item label .form-required').prependTo('.feedback-required .form-item label');
+
+
+        //zebra stripe the table on the performance indicator preview
+        $("#indicators .accordion_tabs table tbody tr:odd").addClass("striped");
+        //finished copying from perf3 global.js
+
+
+        // Responsive Stuff
+
+           $("body #main-content .node .mission-container .mission_mobile").click(function(){ // Click on Mission on mobile to slide text down
+                if(jQuery(window).width() <= 767){
+                    $("#main-content .node .teaser_themes_wrapper").slideToggle();
+                }                        
+              });
+
+
+            function checkWindowSize() {
+                if ( jQuery(window).width() <= 767 ) {
+                    $(".agency_drop").insertBefore(".box3");     //Home-page Blue Boxes drop down
+                    //$(".node .mission-container .logo").insertBefore(".node .mission-container .text"); // Agencies header/logo div position
+                    $("#main-content .node .mission-container .teaser_themes_wrapper").insertBefore("#tabs").hide();
+                    
+
+
+                    // $("#tabs").attr("id","tabs_mobile");
+                    // $("#tabs_mobile ul").addClass('ui-tabs-nav_mobile');
+                    // $("#overview").insertAfter(".overview_wrapper").addClass('tab_wrapper');
+                    // $("#stgob").insertAfter(".strategic_wrapper").addClass('tab_wrapper');
+                    // $("#apg").insertAfter(".apg_wrapper").addClass('tab_wrapper');
+                    // $("ul.ui-tabs-nav_mobile li .blue_tab a").contents().unwrap().wrap('<b>');
+                    // $("ul.ui-tabs-nav_mobile li .tab_wrapper").hide();
+                    // $('ul.ui-tabs-nav_mobile li b').click(function(){
+                    //     $(this).closest("li").children('.tab_wrapper').slideToggle();
+                    //   });
+
+                    
+                }
+
+                else if ( jQuery(window).width() > 767 ) {
+                    $(".agency_drop").insertBefore(".themes_drop");   //Home-page Blue Boxes drop down
+                    //$(".node .mission-container .logo").insertAfter(".node .mission-container .text");  // Agencies header/logo div position
+                    $("#main-content .node .teaser_themes_wrapper").insertAfter(".mission_mobile").show();
+
+                    // $("ul.ui-tabs-nav_mobile li .tab_wrapper").show();
+                    // $("#apg").insertBefore(".agency-reports-wrapper").removeClass('tab_wrapper');
+                    // $("#stgob").insertBefore("#apg").removeClass('tab_wrapper');
+                    // $("#overview").insertBefore("#stgob").removeClass('tab_wrapper');
+                    // $("#tabs_mobile ul").removeClass('ui-tabs-nav_mobile');
+                    // $("#tabs_mobile").attr("id","tabs");
+
+
+
+                }
+
+            }
+
+            jQuery(document).ready(function(){
+                jQuery(window).resize(checkWindowSize);
+                checkWindowSize();
+                windowWidth = window.width;
+            });
+
+        // End of Responsive Stuff
+
+        //For fixing rich text editor excess spacing on toolbars.
+        $( "div" ).removeClass( "text-format-wrapper" );
+        // For node edit pages:
+        // Hide description (we are using blue info icon for that)
+        $('.page-node .form-item .description').each(function () {
+            var oThis = $(this);
+            var sDescription = oThis.text();
+            oThis.hide();
+        });
+
+        // undoes the previous tool tip icon stuff for img upload fields
+        $('.page-node .form-type-managed-file').each(function () {
+            var oThis = $(this);
+            oThis.find('.description').css('display', 'block');
+            oThis.find('.helpIcon').css('display', 'none');
+        });
+
+        // undoes the previous tool tip icon stuff for vertical tab boxes
+        $('.page-node .vertical-tabs .form-item').each(function () {
+            var oThis = $(this);
+            oThis.find('.description').css('display', 'block');
+            oThis.find('.helpIcon').css('display', 'none');
+        });
+
+        // hotfix: Strategic Goal Node Edit page
+        // TODO: remove this functionality once we can accomplish these DOM changes in Drupal
+        $('#strategic-goal-node-form .view .view-header').after('<div class="clear"></div>');
+
+        // hotfix: Strategic Goal Node View page
+        // TODO: remove this functionality once we can accomplish these DOM changes in Drupal
+        $('.node-strategic-goal .lastUpdatedBy').next('div').addClass('get-pdf get-export');
+        $('.node-strategic-goal .get-pdf').next('div').addClass('get-csv get-export');
+        $('.node-strategic-goal .get-csv').next('div').addClass('get-xml get-export');
+
+        // all text inputs, dropdown, textarea, and CKEditor will show 'clear value' button except for the following (use jQuery selector)
+        var excludedElements = [
+            '#edit-field-pg-id-und-0-value',
+            '#edit-field-sg-id-und-0-value',
+            '#edit-field-objective-id-und-0-value',
+            '.node-type-priority-goal #edit-body-und-0-value',
+            '#edit-field-sg-statment-und-0-value',
+            '.node-type-objective #edit-body-und-0-value',
+            '#edit-field-agency-code-und-0-value',
+            '#edit-field-agency-acronym-und-0-value',
+            '#edit-field-program-id-und-0-value',
+            '#edit-field-perf-ind-id-und-0-value',
+            '#edit-field-ind-instance-identifier-und-0-value',
+            '#edit-field-reporting-period-und-0-value',
+            '#edit-field-indicator-id-und',
+            '#edit-field-cag-id-und-0-value',
+            '#edit-search-block-form--2'
+
+        ];
+        var excludedElementObjs = $(excludedElements.join(','));
+        // For all text inputs, add a 'clear' icon/button
+        $('.page-node-edit input:text, .page-node-add input:text').not(excludedElements.join(',')).each(function () {
+            $(this).after('<img src="/sites/all/themes/performance/images/edit_clear.png" alt="Clear Field" class="clear-icon clear-icon-txt" title="Clear Field" />');
+        });
+        $('.clear-icon-txt').click(function () {
+            if (confirm('Please confirm that you would like to clear this field.')) {
+                $(this).prev('input:text').val('');
+            }
+        });
+        // For all selects, add a 'clear' icon/button
+        $('.page-node-edit select, .page-node-add select').not(excludedElements.join(',')).each(function () {
+            $(this).after('<img src="/sites/all/themes/performance/images/edit_clear.png" alt="Clear Field" class="clear-icon clear-icon-select" title="Clear Field" />');
+        });
+        $('.clear-icon-select').click(function () {
+            if (confirm('Please confirm that you would like to clear this field.')) {
+                $(this).prev('select').children('option').removeAttr("selected");;
+            }
+        });
+        // For all textareas, add a 'clear' icon/button
+        $('.page-node-edit textarea, .page-node-add textarea').not(excludedElements.join(',')).each(function () {
+            $(this).after('<img src="/sites/all/themes/performance/images/edit_clear.png" alt="Clear Field" class="clear-icon clear-icon-txtarea" title="Clear Field" />');
+        });
+        $('.clear-icon-txtarea').click(function () {
+            if (confirm('Please confirm that you would like to clear this field.')) {
+                var target = $(this).prevUntil('textarea').prev();
+                if (target.length != 0) { // this is a CKEditor component
+                    CKEDITOR.instances[target.attr('id')].setData('');
+                } else { // this is a normal <textarea>
+                    $(this).prev('textarea').val('');
+                }
+            }
+        });
+
+        // 'Clear All' clears all form fields except those items listed in the excludedElements array
+        $('.page-node #edit-clear-all').click(function(event) {
+            event.preventDefault(); // prevents form from being submitted
+            if (confirm('Please confirm that you would like to clear all fields.')) {
+                // handle text input, dropdowns and HTML textarea
+                $('input:text, textarea').not(excludedElements.join(',')).val('');
+                $('select').not(excludedElements.join(',')).children('option').removeAttr('selected');
+
+                // handle CKEditor fields
+                $.each(CKEDITOR.instances, function(id) {
+                    var foundExclude = false;
+                    for (var i in excludedElementObjs) {
+                        var target = $('#' + id);
+                        if (excludedElementObjs[i] === target[0]) { // checking if we have the same object: http://stackoverflow.com/questions/3176962/jquery-object-equality
+                            foundExclude = true;
+                            break;
+                        }
+                    }
+                    if (!foundExclude) { // if not found in excluded list, clear it!
+                        CKEDITOR.instances[id].setData('');
+                    }
+                });
+            }
+        });
+
+        // display APG Goal Lead Thumbnail
+        // TODO: APG Goal Leader is using 'File' widget. Explore using the 'Image' widget instead, making this obsolete
+        $('.group-pg-goal-leader-display span.file img').each(function() {
+            var imgUrl = $(this).next('a').attr('href');
+            $(this).attr('src', imgUrl);
+        });
+
+        $('.view-filters input').livequery(function() {
+            // exposed view filters should start with the word 'Search'. Clear it out when clicked
+            if ($(this).val() == '') {
+                $(this).val('Search');
+            }
+            // bind focus() and blur() event handlers
+            $(this).focus(function() {
+                if ($(this).val() == 'Search') {
+                    $(this).val('');
+                }
+            });
+            $(this).blur(function() {
+                if ($(this).val() == '') {
+                    $(this).val('Search');
+                }
+            });
+        });
+        $('.top-agency-info > h1, .dashboard .key a').vAlign();
+
+        $('#block-devel-switch-user .hide-link').click(function() {
+            $('#block-devel-switch-user').hide();
+        });
+
+        // add a clearing <div> to the end of field group containers
+        // TODO: find a way to do this using Drupal hooks
+        $('.field-group-format').append('<div class="clear"></div>');
+
+        // for APG Coal Leaders, if no thumbnail image, use the default image
+        // TODO: is there a Drupal way to achieve this?
+        $('.group-pg-goal-leader-display .field-item-field_pg_leader_thumbnail .field-item').each(function() {
+            if ($(this).html() == '') {
+                $(this).html('<img src="/sites/all/themes/performance/images/user-silhouette.png" />');
+            }
+        });
+
+        // inject 'Add New Indicator' and 'Add New Strategic Objective' as form buttons on their respective forms
+
+        var pathArray = window.location.pathname.split('/');
+        $('#fgm_node_priority_goal_form_group_pg_indicator_info-add-more-wrapper').append('<input type="button" name="add_new_indicator" value="Add New Indicator" onclick="divID = document.getElementById(\'edit-title\');divID.innerHTML +=\'<input type=hidden name=add_indicator value=yes>\';document.getElementById(\'edit-submit\').click()">');
+        $('#fgm_node_strategic_goal_form_group_sg_objectives-add-more-wrapper').append('<input type="button" name="add_new_strategic_objective" value="Add New Strategic Objective" onclick="window.location = \'/node/add/objective/' + pathArray[2] + '\';">');
+
+
+
+        $('.fullmode').addClass('hide');
+
+        $('.view-cap-goals-list div.view-grouping:eq(1)').addClass('last');
+
+
+//        (function($) {
+//            if($('div').hasClass('hasTooltip')){
+//                $('.hasTooltip').each(function() { // Notice the .each() loop, discussed below
+//                    $(this).qtip({
+//                        content: {
+//                            text: $(this).next('div') // Use the "div" element next to this for the content
+//                        }
+//                    });
+//                });
+//            }
+//        }(jQuery));
+/*    });
+});
+
+jQuery(window).load( function() {
+    jQuery(function ($) {*/
+        /*if($('body').hasClass('preview')){
+            $('a').click(function(e){
+                e.preventDefault();
+            });
+        }*/
+        $('#slider-code').tinycarousel({ pager: true });
+
+        //read more read less toggle. hide fullmode is above in document.ready
+        $('.read-more, .read-less').click(function(){
+            //var classed = $(this).parent().siblings().is('div.teaser, div.fullmode');
+
+            //if (classed == true){
+                $(this).parent().toggleClass('hide');
+
+                $(this).parent().next('div.teaser, div.fullmode').toggleClass('hide');
+                $(this).parent().prev('div.teaser, div.fullmode').toggleClass('hide');
+            //}
+        });
+
+        $('.agency-report .thumbnail').vAlign();
+        $('.agency-report .download').vAlign();
+        $('.agency-reports-wrapper .links').vAlign();
+
+        //This is for the accordion
+        $('.accordion_content').hide();
+        
+        $('#indicators').find('.accordion_content').eq(0).show();
+        
+        // To make the triangle only click comment out below click function David Bruley
+        $('.accordion_header').click(function(){
+            collapseAllSiblings.call(this); // Start by collapsing everything!
+
+            var checkElement = $(this).next();
+            var thisID = $(this).attr('id');
+            
+            // Adds expanded triangle to clicked item and removes from the rest
+            // Change this selector back to just.accordion_header
+            
+            if ((!checkElement.is(':visible'))) {
+                var self = this;
+                $(this).siblings('.accordion_content').slideUp('fast',function() {
+                    theOffset = $(self).offset();
+                    $('body,html').animate({ scrollTop: theOffset.top  });
+                });
+                $(this).addClass('accordion_expanded').removeClass('accordion_collapsed');
+                $(this).next('.accordion_content').slideDown();
+            } 
+            else {
+                $(this).removeClass('accordion_expanded').addClass('accordion_collapsed');
+                $(this).siblings('.accordion_content').slideUp();
+            }
+        });
+
+        //Remove this code when not clicking just triangle David Bruley
+        // $('.expanding_triangle').click(function(){
+        //     var checkElement = $(this).parent().next();
+        //     var thisID = $(this).parent().attr('id');
+        //     alert(thisID);
+        //     //adds expanded triangle to clicked item and removes from the rest
+        //     $(this).parent().siblings('.accordion_header').removeClass('accordion_expanded');
+        //     $(this).parent().toggleClass('accordion_expanded');
+
+
+        //     if((!checkElement.is(':visible'))){
+        //         var self = this;
+        //         $(this).parent().siblings('.accordion_content').slideUp('fast',function() {
+        //             theOffset = $(self).offset();
+        //             $('body,html').animate({ scrollTop: theOffset.top  });
+        //         });
+        //         $(this).parent().next('.accordion_content').slideDown();
+        //         $(this).parent().next('.accordion_content').attr('aria-hidden', false);
+        //     }
+        //     else{
+        //         $(this).parent().siblings('.accordion_content').slideUp();
+        //         $(this).parent().next('.accordion_content').attr('aria-hidden', true);
+        //     }
+        // });
+
+        // $('.expanding_triangle').keypress(function(e){
+        //     if((e.keyCode ? e.keyCode : e.which) === 13) {
+        //         var checkElement = $(this).parent().next();
+        //         var thisID = $(this).parent().attr('id');
+        //         //adds expanded triangle to clicked item and removes from the rest
+        //         $(this).parent().siblings('.accordion_header').removeClass('accordion_expanded');
+        //         $(this).parent().toggleClass('accordion_expanded');
+
+        //         if((!checkElement.is(':visible'))){
+        //             var self = this;
+        //             $(this).parent().siblings('.accordion_content').slideUp('fast',function() {
+        //                 theOffset = $(self).offset();
+        //                 $('body,html').animate({ scrollTop: theOffset.top  });
+        //             });
+        //             $(this).parent().next('.accordion_content').slideDown();
+
+        //         }else{
+        //             $(this).parent().siblings('.accordion_content').slideUp();
+        //         }
+        //     }
+        // });
+
+        //Strategic Objective Related Goals
+        $('#slider-code').tinycarousel({ pager: true });
+        $('#slider-code2').tinycarousel({ pager: true });
+        $('#agency-head-carousel').tinycarousel({
+            pager: true,
+            interval: true
+            });
+
+        //Auto height on agency head div
+        var ov_height = $('.overview').height();
+        $('#agency-head-carousel .viewport').css('height', ov_height);
+
+        //finished copying from perf3 global.js
+
+        $('.top-agency-info > h1').vAlign();
+        $('.page-agency-landing .overview-container .key').vAlign();
+
+        // add a 'skirt' div for each agency head to hide the image below the frame
+        $('.page-agency-landing .agency-container .agency-head .pic img').each(function() {
+            var pixels = $(this).height() - 100; // 100px is the height of the frame
+            $(this).parent().siblings('.frame-wrapper').children('.skirt').height(pixels);
+        });
+
+        // nudge the agency head name accordingly
+        $('.page-agency-landing .agency-container .agency-head .name').each(function() {
+            var nameBoxWidth = $(this).width();
+            var frameWidth = $(this).siblings('.frame-wrapper').width();
+            var skirtHeight = $(this).siblings('.frame-wrapper').children('.skirt').height();
+            var currentLeft = parseInt($(this).css('left'));
+            var currentTop = parseInt($(this).css('top'));
+
+            // container's margin bottom: should be the same as initial value of $(this).css('top')
+            $(this).parent().css('margin-bottom', currentTop);
+
+            // left position: add this many pixels: (1/2) * (width of frame - width of name box) 
+            $(this).css('left', currentLeft + Math.round(.5 * (frameWidth - nameBoxWidth)));
+
+            // top position: subtract this many pixels: height of skirt 
+//            $(this).css('top', currentTop - skirtHeight);
+
+            
+            //  if name got nudged to the left, move entire agency head container to the right.
+            //  if name got nudged to the right, do not move the agency head container.
+            
+            $(this).parent().css('left', Math.max(0, -parseInt($(this).css('left'))));
+        });
+        //Styling select boxes
+//        $("select").selectBoxIt();
+
+
+
+        $('#spotlight #flag .pic img').each(function() {
+            var pixels = $(this).height() - 100; // 100px is the height of the frame
+            $(this).parent().siblings('.frame-wrapper').children('.skirt').height(pixels);
+        });
+
+        // nudge the agency head name accordingly
+        $('#spotlight #flag .name').each(function() {
+            var nameBoxWidth = $(this).width();
+            var frameWidth = $(this).siblings('.frame-wrapper').width();
+            var skirtHeight = $(this).siblings('.frame-wrapper').children('.skirt').height();
+            var currentLeft = parseInt($(this).css('left'));
+            var currentTop = parseInt($(this).css('top'));
+
+            // container's margin bottom: should be the same as initial value of $(this).css('top') 
+            $(this).parent().css('margin-bottom', currentTop);
+
+            // left position: add this many pixels: (1/2) * (width of frame - width of name box) 
+            $(this).css('left', currentLeft + Math.round(.5 * (frameWidth - nameBoxWidth)));
+
+            //top position: subtract this many pixels: height of skirt 
+//            $(this).css('top', currentTop - skirtHeight);
+
+            
+            //if name got nudged to the left, move entire agency head container to the right.
+            //if name got nudged to the right, do not move the agency head container.
+            
+            $(this).parent().css('left', Math.max(0, -parseInt($(this).css('left'))));
+        });
+
+        /*//Tech-Ref Page
+        $('.dev-api-info').hide();
+        $('.dev-api-header').click(function() {
+            $(this).next('.dev-api-info').slideToggle();
+        });
+        $('.dev-api-header').keypress(function(e) {
+            if((e.keyCode ? e.keyCode : e.which) == 13) {
+                $(this).next('.dev-api-info').slideToggle();
+            }
+        });*/
+
+        //Learn more anchor tag fix because of agency.js preventing default
+        $('.accordion_content a').bind('click', function() {
+           var myUrl = $(this).attr('href');
+            window.location.replace(myUrl);
+        });
+
+        //Remove Learn more for preview pages.
+        var dir = ($.url().attr('directory')).split('/');
+        if(dir[3] == 'preview'){
+            $('.accordion_header a').each(function () {
+                $(this).replaceWith($(this).text());
+            });
+           $('.learn-more').html('<p class="learn-more" style=" font-weight: bold;color:#ffffff;">Learn More</p>');
+        };
+        if(dir[3] == 'edit'){
+            $('[id*=-workflow-submit-sid-]').appendTo("#edit-actions");
+        }
+
+        $(".page-cap-goals-list .views-accordion-header .field-content a").click(function(e) {
+            e.stopImmediatePropagation();
+            location.href = $(this).attr('header_url');
+        });
+
+        $(".wf-publish-all-content").live('click',function(){
+            return confirm("Are you sure you want to publish content?");
+        });
+
+        //Fixes tab order blue box home page
+        $('.homepage-blue-box .popup-element-title').attr('tabindex', '0');
+
+        // ARIA landmarks for CAP goals list page
+        $('.view-cap-goals-list .view-content .view-grouping-content .views-row').each(function(index){
+            $(this).children('.views-field').attr('aria-controls','Cross Agency Priority Goal Panel'+(index+1));
+            $(this).children('.ui-accordion-content').attr('aria-labeledby','Cross Agency Priority Goal Tab'+(index+1));
+            $(this).children('.ui-accordion-content').attr('aria-hidden','true');
+        });
+        $('.view-cap-goals-list .view-content .view-grouping-content .views-row').click(function(){
+            var checkElement = $(this).children('.ui-accordion-content');
+            $('.view-cap-goals-list .view-content .view-grouping-content .views-row').each(function(index){
+                $(this).children('.ui-accordion-content').attr('aria-hidden','true');
+            });
+            setTimeout(function(){
+                if(checkElement.css('display') == 'none'){
+                    checkElement.attr('aria-hidden', true);
+                }else{
+                    checkElement.attr('aria-hidden', false);
+                }
+            }, 500);
+        });
+        
+       /* Announcements UX */
+       var $announceBlocks = $('#block-views-announcements-block, #block-views-announcements-block-1');
+       $announceBlocks.each(function(i) {
+         // Attach the close btn...
+         var dayMicroSeconds = 86400000;
+         var $block = $(this).append('<i class="ann-close ann-close-'+i+'">X</i>');
+         
+         // Do they have local Storage?
+         if (Storage) {
+           var now = Date.now(); // What time is? After 5... lets get a drink.
+           var lastView = Number(localStorage.getItem('ann-close-'+i)); // have they seen this block and closed it before? Let's find out!
+
+           // They viewed... did they view within the last day (24 * 60 * 60 * 1000)
+           if (lastView && ((lastView + dayMicroSeconds) > now)) {
+             $block.hide(); // Get that block outta here!
+           }
+         }
+         
+         // Set the lastView time for the annoucements block when they close the view (block)
+         $('.ann-close-'+i).click(function() {
+           if (Storage) {
+             // Store the timestamp
+             localStorage.setItem('ann-close-'+i, now);
+           }
+           $block.hide(); // Hide the block...
+         });
+       });
+       
+      /* Indicator re-org (quick & dirty) */
+      var $group = $('.form-item-title + .field-group-format').detach(); // this works best when it is built from the top level.
+      $('.group-action-plan-items').append($group); // so... we use some js to move it where it needs to be...
+    });
+});
+
+function initReportBuilderSearch($) {
+    $('#performance-report-builder-form input:text').each(function() {
+        if ($(this).attr('title') != 'Search') {
+            $(this).attr('title', 'Search');
+// TODO: figure out why uncommenting this line initializes the page on 'Progress & Next Steps' search
+//            $(this).ezpz_hint();
+// TODO: figure out if the previous todo still applies. LOL
+        }
+    });
+    $('#performance-report-builder-agency-report-form input:text').each(function() {
+        if ($(this).attr('title') != 'Search') {
+            $(this).attr('title', 'Search');
+            $(this).ezpz_hint();
+        }
+    });
+    $('#performance-report-builder-goals-report-form input:text').each(function() {
+        if ($(this).attr('title') != 'Search') {
+            $(this).attr('title', 'Search');
+            $(this).ezpz_hint();
+        }
+    });
+    $('#performance-report-builder-action-plan-report-form input:text').each(function() {
+        if ($(this).attr('title') != 'Search') {
+            $(this).attr('title', 'Search');
+            $(this).ezpz_hint();
+        }
+    });
+
+    // Report search box reposition
+    // TODO: restructure the DOM instead of using CSS relative positioning
+    $('.ms-selectable > input').each(function() {
+        var thisWidth = $(this).parent().parent().siblings('label').width();
+        var thisHeight = $(this).parent().parent().siblings('label').height();
+        //$(this).css('left', (thisWidth + 40) + 'px');
+        $(this).css('top', (-thisHeight + -2) + 'px');
+        $(this).css('left', '267px');
+    });
+}
+
+function initReportBuilderLabels($) {
+    // Add labels to report builder option fields
+    // TODO: restructure the DOM instead of using CSS relative positioning
+    $('.ms-selectable .ms-list').each(function() {
+        if ($(this).prev().prop('tagName') != 'H4') {
+            $(this).before('<h4>Available Options:</h4>');
+        }
+    });
+    $('.ms-selection .ms-list').each(function() {
+        if ($(this).prev().prop('tagName') != 'H4') {
+            $(this).before('<h4>Selected Options:</h4>');
+        }
+    });
+}
+
+function initReportBuilderBinding(){
+
+}
+
+
+jQuery(window).load(function(){
+
+    jQuery(function ($) {
+
+        // Search Page - Refine Results Block checkboxes
+        // Enable tab navigation
+
+        $(".page-search span.checkbox.facetapi-checkbox").attr("tabindex", "0");
+
+        $('body').keyup(function(e){
+           if(e.keyCode == 13){
+
+               // Page Search Click checkbox when enter key is pressed
+               $('.page-search span.checkbox.facetapi-checkbox:focus').children("input").click();
+
+           }
+        });
+
+    });
+
+});
+
+function viewAll(contentType){
+    var agency_id =  getParameterByName('agency_nid');
+    var year = getParameterByName('field_year_filter_value');
+    var url = '';
+    if (contentType == 'apg'){
+        url = "/omb-goals-listing";
+    }
+    else if (contentType == 'indicator'){
+        url = "omb-indicators-listing";
+    }
+
+    if (agency_id != null && agency_id != ''){
+        url += "?agency_nid=" + agency_id;
+    }
+
+    if (year != null && year != ''){
+        var n = url.indexOf("?");
+        if (n != -1){
+            url += "&field_year_filter_value=" + year;
+        }
+        else{
+            url += "?field_year_filter_value=" + year;
+        }
+    }
+
+    window.location.href = url;
+}
+
+function getParameterByName( name ){
+    name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+    var regexS = "[\\?&]"+name+"=([^&#]*)",
+        regex = new RegExp( regexS ),
+        results = regex.exec( window.location.href );
+    if( results == null ){
+        return "";
+    } else{
+        return decodeURIComponent(results[1].replace(/\+/g, " "));
+    }
+}
