@@ -76,14 +76,14 @@ $(document).ready(function(){
                $fiscal_year = $('#edit-clear-goals-fiscal-year').val();
                if ($fiscal_year == ''){$fiscal_year = 'all';}
 			   $.ajax({
-                    type: 'GET',
-                    /*url: "clear_goals/js/" + parseInt(this.id, 10) + '/' + parseInt(((this.id).substring((this.id).indexOf('_')+1)), 10),*/
-                    url: "clear_goals/js/" + parseInt($(this).parent().parent().parent().attr('id'), 10) + '/' + parseInt((($(this).parent().parent().parent().attr('id')).substring(($(this).parent().parent().parent().attr('id')).indexOf('_')+1)), 10) + '/' + $fiscal_year,
-                    dataType: "html",
-                    success: getData,
-                    error: function(xmlhttp) {
-                        alert('An error occurred: ' + xmlhttp.status);
-                    }
+                    // type: 'GET',
+                    // /*url: "clear_goals/js/" + parseInt(this.id, 10) + '/' + parseInt(((this.id).substring((this.id).indexOf('_')+1)), 10),*/
+                    // url: "clear_goals/js/" + parseInt($(this).parent().parent().parent().attr('id'), 10) + '/' + parseInt((($(this).parent().parent().parent().attr('id')).substring(($(this).parent().parent().parent().attr('id')).indexOf('_')+1)), 10) + '/' + $fiscal_year,
+                    // dataType: "html",
+                    // success: getData,
+                    // error: function(xmlhttp) {
+                    //     alert('An error occurred: ' + xmlhttp.status);
+                    // }
                 })
                 return false;
             });
